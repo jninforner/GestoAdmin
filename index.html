@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>GestoAdmin</title>
+<link rel="icon" type="image/png" href="./icon.png?v=1.7.0">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon.png?v=1.7.0">
+<style>:root{color-scheme:light;--bg:#f7f8fd;--tx:#28377e;--mu:#566598;--ln:#303f91;--surface:#fff;--soft:#f0f2fc;--border:#d4daf1;--field:#b6bfdf;--on:#fff;--red:#b42318;--green:#17734a}
+:root[data-theme=dark]{color-scheme:dark;--bg:#10152c;--tx:#e5e9ff;--mu:#adb8e5;--ln:#a1afff;--surface:#1b2447;--soft:#232f59;--border:#425080;--field:#6371a0;--on:#10152c;--red:#ff9992;--green:#84dbab}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:auto;padding:20px 16px 36px}
+header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:18px}
+h1{font-size:28px;letter-spacing:-.035em;margin:0}
+h2{font-size:21px;margin:0 0 14px}
+h3{font-size:17px;margin:0 0 8px}
+p{margin:8px 0}
+nav,.actions{display:flex;gap:8px;flex-wrap:wrap}
+nav{margin-bottom:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 3px 14px rgba(40,55,126,.055);padding:20px;margin-bottom:16px}
+label{display:grid;gap:4px;font-size:14px;color:var(--mu)}
+input,select,textarea{width:100%;min-height:46px;padding:8px 12px;border:1px solid var(--field);border-radius:10px;background:var(--surface);color:var(--tx);font:inherit;font-size:16px}
+textarea{display:block;resize:vertical;margin:10px 0}
+button,.button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 15px;border:1px solid var(--ln);border-radius:10px;background:var(--surface);color:var(--tx);font:600 15px/1.3 inherit;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none}
+button:hover,.button:hover{background:var(--soft)}
+.primary,[aria-current=page]{background:var(--ln);color:var(--on)}
+.primary:hover,[aria-current=page]:hover{background:var(--ln);filter:brightness(1.13)}
+:focus-visible{outline:3px solid #788cf0;outline-offset:2px}
+button:disabled{opacity:.55;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.item{border-top:1px solid var(--border);padding:8px 0}
+.item:last-child{padding-bottom:0}
+.meta{color:var(--mu);font-size:14px}
+.error,.remove{color:var(--red)}
+#status:empty{display:none}
+#status{margin-bottom:12px}
+.whatsapp{color:var(--green);border-color:var(--green)}
+@media(max-width:430px){main{padding:14px 12px 28px}.card{padding:15px}h1{font-size:24px}nav button{padding:8px 11px}}
+.order-lookup{margin-bottom:12px}
+.order-matches{margin-top:6px;max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+.order-matches button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;border:0;border-radius:0;text-align:left}
+.order-matches button+button{border-top:1px solid var(--border)}
+.order-matches button:focus-visible{outline-offset:-3px}
+#order-match-status:empty{display:none}
+#line{margin-top:12px}
+[hidden]{display:none !important}
+.topbar{position:relative;gap:12px;padding-bottom:10px;border:0}
+.brand{min-width:0}
+.brand h1{font-size:clamp(20px,4.5vw,30px);line-height:1.1;overflow-wrap:anywhere}
+.version{margin-top:5px}
+.top-actions{display:flex;flex-shrink:0;gap:8px;align-items:center}
+.top-actions button{gap:7px;min-height:42px;padding:8px 12px;white-space:nowrap}
+.top-actions button span:first-child{font-size:18px;line-height:1}
+.menu-anchor{position:relative}
+#menu-panel{position:absolute;top:calc(100% + 8px);right:0;z-index:5;width:max-content;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 30px rgba(40,55,126,.15);padding:10px}
+#tabs{display:grid;gap:6px;margin:0 0 6px}
+#menu-panel button{width:100%;justify-content:flex-start;white-space:nowrap}
+@media(max-width:430px){
+  .topbar,.top-actions{gap:6px}
+  .top-actions button{font-size:14px;padding:7px 9px}
+  .version{font-size:13px}
+}
+.catalog-line{margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--soft)}
+:root{--draft-highlight:#edf8f1}
+:root[data-theme=dark]{--draft-highlight:#19332e}
+.item.in-draft,.order-matches button.in-draft{background:var(--draft-highlight)}
+.item.in-draft{padding-inline:10px;border-radius:8px}
+.draft-badge{display:inline-block;margin-inline-start:8px;color:var(--green);font-size:13px;font-weight:650}
+.order-matches .draft-badge{margin-inline-start:0}
+#read-catalog button,#confirm-pdf>.actions{margin-top:10px}
+.pdf-rows{max-height:55vh;overflow:auto;margin-top:12px}
+.pdf-row{display:grid;grid-template-columns:5rem minmax(9rem,2fr) repeat(2,minmax(5rem,1fr));gap:8px;padding:10px 0;border-top:1px solid var(--border)}
+.pdf-select{display:flex;align-items:center;align-self:center;white-space:nowrap}
+.pdf-select input{width:18px;min-height:18px}
+@media(max-width:550px){
+  .pdf-row{grid-template-columns:1fr 1fr}
+  .pdf-row label:nth-child(2){grid-column:1/-1;grid-row:2}
+}
+main{width:100%;padding-inline:max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right))}
+.card,.grid,.grid>* ,label,.row>*{min-width:0}
+input,select,textarea,button,.button{max-width:100%;min-width:0}
+input[type=file]{width:100%}
+img,video,canvas{max-width:100%;height:auto}
+.card{overflow-wrap:anywhere}
+.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+#login-panel{max-width:500px;margin-inline:auto}
+#login-form .grid{grid-template-columns:minmax(0,1fr)}
+.login-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#password-reset{display:inline-block;margin:12px 0;color:var(--tx);text-underline-offset:.18em}
+#login-status:empty{display:none}
+.contact-actions{margin:8px 0 12px}
+.contact-file{position:relative;cursor:pointer}
+.contact-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.contact-file:focus-within{outline:3px solid #788cf0;outline-offset:2px}
+.recipient-picker{margin-top:10px}
+.recipient-picker form{margin-top:12px}
+.remember-contact{display:flex;align-items:center;gap:8px;margin:12px 0}
+.remember-contact input{width:18px;min-height:18px;flex:none}
+@media(max-width:480px){
+  html{-webkit-text-size-adjust:100%}
+  .topbar{align-items:flex-start;gap:8px;margin-bottom:8px;padding-bottom:4px}
+  .top-actions{gap:4px}
+  .top-actions #menu-toggle,.top-actions #logout{width:44px;min-height:44px;padding:0;border-color:transparent;background:transparent}
+  .top-actions .top-action-label{display:none}
+  .menu-anchor{position:static}
+  #menu-panel{top:100%;right:0;max-width:100%}
+  button,.button{touch-action:manipulation}
+  #line .grid,#catalog-line .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #line .grid>label:first-of-type,#catalog-line .grid>label:first-of-type{grid-column:1/-1}
+}
+
+.order-lines{background:#eaf0ff;border-color:#afbfeb}
+:root[data-theme=dark] .order-lines{background:#202e55;border-color:#516798}
+
+
+.order-list-heading{display:flex;align-items:start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.order-list-heading h2{margin:0}
+#order-visibility{gap:6px;padding-inline:10px}
+#order-visibility[aria-pressed=true]{background:var(--ln);color:var(--on)}
+.order-send{margin-top:12px}
+.order-category{margin-top:16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.order-category h3{margin:0;padding:7px 11px;background:var(--soft);border-radius:11px 11px 0 0;font-size:15px}
+.order-list-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:start;border-top:1px solid var(--border)}
+.order-list-row.is-ordered{background:var(--soft)}
+.order-toggle,.order-pencil{border:0;border-radius:0;background:transparent}
+.order-toggle{width:100%;min-height:40px;justify-content:start;gap:8px;padding:4px 9px;text-align:start}
+.order-marker{flex:0 0 18px;height:18px;border:1px solid var(--field);border-radius:5px;text-align:center;line-height:16px}
+.is-ordered .order-marker{background:var(--ln);color:var(--on);border-color:var(--ln)}
+.order-item-copy{display:grid;min-width:0;line-height:1.2;gap:1px}
+.order-item-copy strong,.order-item-copy .meta{overflow-wrap:anywhere}
+.order-item-copy .meta{font-weight:400}
+.order-list-row strong{color:var(--red)}
+.order-list-row.is-ordered strong{color:var(--green)}
+.order-pencil{width:44px;padding:0;font-size:21px}
+.order-editor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:8px 10px 12px}
+.order-editor label:nth-child(3),.order-editor .actions,.order-editor [data-editor-error]{grid-column:1/-1}
+
+.order-list-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:end;gap:8px;min-width:0;flex:1 1 100%}
+.order-list-filters label{width:100%}
+.order-list-filters select{height:44px;min-height:44px}
+
+#order-dialog{width:min(460px,calc(100% - 24px));max-height:calc(100% - 24px);padding:18px;color:var(--tx);background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow-wrap:anywhere}
+#order-dialog::backdrop{background:#11183180}
+#order-dialog .order-editor{padding:0}
+
+.order-lines .order-lookup{margin:14px 0 0}
+#order-add-search{display:flex;gap:8px;align-items:end}
+#order-add-search label{flex:1 1 auto;min-width:0}
+#order-search-submit[hidden]{display:none}
+#order-add-search button{min-height:46px}
+
+.catalog-management{margin-bottom:10px}
+.article-merge-choice{display:flex;align-items:center;gap:5px;min-height:44px}
+.article-merge-choice input{width:18px;min-height:18px}
+
+.staff-worker summary{cursor:pointer}
+.staff-worker form{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:8px 0}
+.staff-worker form label{flex:1 1 14rem}
+
+@media(max-width:480px){
+  .order-lines{padding:11px}
+  .order-list-heading{display:grid;gap:6px}
+  .order-list-heading h2{font-size:19px;line-height:1.2}
+  .order-list-heading .meta{font-size:13px}
+  .order-list-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 8px}
+  .order-list-filters label{width:100%;gap:2px;font-size:12px}
+  .order-list-filters select{height:40px;min-height:40px;padding:4px 6px;text-overflow:ellipsis}
+  #order-visibility{grid-column:1/-1;justify-self:start;min-height:40px;padding-block:4px;font-size:14px}
+  .order-lines .order-lookup{margin-top:6px}
+  #order-add-search{gap:6px}
+  #order-add-search label{gap:2px;font-size:12px}
+  #order-add-search input,#order-add-search button{min-height:42px;padding-block:4px}
+  .order-category{margin-top:8px}
+}
+.order-list-row{grid-template-columns:minmax(0,1fr) auto 44px}
+.order-list-row:not(.is-ordered){grid-template-columns:minmax(0,1fr) 44px}
+.order-steps{display:flex;gap:4px;align-items:center;padding:6px 0}
+.order-step{min-width:0;width:38px;min-height:36px;padding:0;font-size:14px}
+#order-dialog{width:min(560px,calc(100% - 24px))}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sheet-head h2{margin:0}
+#close-order-dialog{min-width:0;width:40px;min-height:40px;padding:0}
+.sheet-part{border-top:1px solid var(--border);margin-top:14px;padding-top:12px}
+.sheet-part h3{margin:0 0 8px}
+.sheet-offer{margin-top:10px}
+.sheet-foot{border-top:1px solid var(--border);margin-top:14px;padding-top:12px}
+.invoice-card{margin:0 0 14px}
+.invoice-card>summary{cursor:pointer;font-weight:650}
+.invoice-card form{margin-top:10px}
+.purchase-row{border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin:12px 0 0}
+.purchase-row legend{font-weight:650;padding:0 4px}
+.purchase-row.is-discarded{opacity:.6}
+.purchase-row .grid{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}
+.purchase-article{grid-column:1/-1}
+.purchase-row-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}
+.purchase-row-actions .meta{flex:1 1 200px;margin:0}
+.purchase-check{display:flex;align-items:center;gap:6px;color:var(--tx)}
+.purchase-check input{width:auto;min-height:0}
+.purchase-head{width:100%;flex-direction:column;align-items:flex-start;gap:2px;border:0;background:transparent;padding:0;text-align:left}
+.purchase-head:hover{background:transparent}
+.article-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:6px;border-top:1px solid var(--border);padding:2px 0}
+.article-row.in-draft{padding-inline:6px;border-radius:8px}
+.article-select{width:20px;min-height:20px;margin:0 6px}
+.article-open{display:block;min-width:0;min-height:36px;justify-content:flex-start;border:0;background:transparent;padding:6px 4px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400}
+.article-open:hover{background:var(--soft)}
+.article-open .meta{font-size:14px}
+.icon-button{min-width:0;width:36px;min-height:36px;padding:0}
+.catalog-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px;border-top:1px solid var(--border);padding:2px 0}
+.catalog-name{min-width:0;padding:6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.icon-button.remove{border-color:var(--red)}
+.icon-button:disabled{opacity:.35}
+.bulk-bar{border:1px solid var(--main-border,var(--border));background:var(--soft);border-radius:12px;padding:12px;margin:10px 0}
+.bulk-bar .actions{margin:8px 0}
+.bulk-bar form{margin-top:8px;align-items:end}
+.bulk-submit{display:flex;align-items:flex-end}
+.catalog-new>summary{cursor:pointer;font-weight:700;font-size:17px}
+.catalog-new[open]>summary{margin-bottom:10px}
+
+.worker-profiles .worker-profile-item{border-top:1px solid var(--border);padding:10px 0}
+.worker-profile-item>summary,.worker-profile-inactive>summary{cursor:pointer;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.worker-profile-item>summary::before,.worker-profile-inactive>summary::before{content:"+"}
+.worker-profile-item[open]>summary::before,.worker-profile-inactive[open]>summary::before{content:"−"}
+.worker-profile-item>summary strong,.worker-profile-inactive>summary strong{flex:1}
+.worker-profile-item>summary span,.worker-profile-inactive>summary span{color:var(--muted,var(--mu));font-size:14px}
+.worker-profile{padding:12px 0 4px}
+.worker-profile-fields{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));margin-bottom:12px}
+.worker-profile-option{display:flex;align-items:center;gap:8px;margin:10px 0}
+.worker-profile-option input{width:20px;height:20px;min-height:20px;margin:0;flex:none}
+.worker-profiles h3{margin-top:14px}
+
+.worker-contact-actions{margin-bottom:8px}
+.worker-contact-actions label{position:relative;cursor:pointer}
+.worker-contact-actions input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.worker-contact-actions label:focus-within{outline:3px solid #788cf0;outline-offset:2px}
+[data-worker-contact-options] label{margin-bottom:8px}
+
+.worker-contact-actions:empty{display:none}
+/* Aspecte comú de les apps Gesto: requadre principal amb fons blau clar (com «Nova comanda») i blocs blancs a dins. */
+:root{--main-bg:#eaf0ff;--main-border:#afbfeb}
+:root[data-theme=dark]{--main-bg:#202e55;--main-border:#516798}
+.main-card{background:var(--main-bg);border-color:var(--main-border)}
+.main-card .card{background:var(--surface);box-shadow:none;border-radius:14px;padding:16px;margin:12px 0 0}
+.main-card .card h3:first-child{margin-top:0}
+.main-card .card h2{font-size:17px;margin:0 0 10px}
+.main-card>.card:first-of-type{margin-top:14px}
+
+.admin-group{border:1px solid var(--border);border-radius:12px;padding:6px 14px 8px;margin:0 0 12px}
+.admin-group legend{padding:0 6px;font-weight:600;font-size:14px}
+.worker-profile-item>summary span{text-align:right}
+#status.error{color:var(--red)}
+.admin-sections{margin-bottom:16px}
+</style>
+</head>
+<body>
+<main>
+<header class="topbar">
+  <div class="brand"><h1>GestoAdmin</h1><div class="meta version">Backoffice de les apps Gesto · Versió 1.7.0</div></div>
+  <div class="top-actions">
+ <button id="theme" type="button" aria-pressed="false" hidden>Mode fosc</button>
+    <button id="logout" type="button" aria-label="Sortir" hidden><span aria-hidden="true">↪︎</span><span class="top-action-label" aria-hidden="true">Sortir</span></button>
+  </div>
+</header>
+<section id="login-panel" class="card">
+<h2>Inicia sessió</h2>
+<p id="login-status" role="status">Carregant l’accés…</p>
+<form id="login-form">
+<div class="grid">
+<label>Correu<input name="email" type="email" autocomplete="username" autocapitalize="none" required></label>
+<label>Contrasenya<input name="password" type="password" autocomplete="current-password" required></label>
+</div>
+<div class="login-actions">
+<button class="primary" value="login">Entra</button>
+<button class="primary" value="register">Crea un compte</button>
+</div>
+<a id="password-reset" href="#reset-panel">He oblidat la contrasenya</a></form>
+<details id="reset-panel" class="item" hidden>
+<summary>Restableix amb un enllaç del correu</summary>
+<form id="reset-link-form">
+<div class="grid">
+<label>Enllaç del correu de restabliment<input name="link" type="url" autocomplete="off" autocapitalize="none" required></label>
+<label>Contrasenya nova<input name="password" type="password" minlength="6" autocomplete="new-password" required></label>
+</div>
+<button class="primary">Desa la contrasenya nova</button>
+</form></details>
+<div class="actions" id="verify-actions" hidden>
+<button id="retry-login">Comprova l’accés</button>
+<button id="resend-verification">Torna a enviar el correu</button>
+</div>
+<form id="verify-link-form" class="item" hidden>
+<label>L’enllaç del correu dona error? Enganxa’l aquí<input name="link" type="url" autocomplete="off" autocapitalize="none" required></label>
+<button type="submit">Verifica el correu</button>
+</form></section>
+<div id="workspace" hidden>
+<p id="status" role="status"></p>
+<section id="content" aria-label="Contingut"></section>
+</div>
+</main>
+<script type="module">
+// GestoAdmin: backoffice de les apps Gesto.
+// Cada secció del backoffice és una entrada de `sections`: per afegir-ne una de nova
+// (configuració d'una app, paràmetres…) n'hi ha prou amb afegir-hi una entrada amb el seu render.
+function mountApp(request, initialData) {
+  const content = document.querySelector('#content');
+  const status = document.querySelector('#status');
+  let data = initialData;
+  let busy = false;
+  let openId = null;
+
+  const theme = document.querySelector('#theme');
+  function setTheme(dark) {
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    theme.textContent = dark ? 'Mode clar' : 'Mode fosc';
+    theme.setAttribute('aria-pressed', String(dark));
+  }
+  let savedTheme = null;
+  try { savedTheme = localStorage.getItem('theme'); } catch {}
+  setTheme(savedTheme ? savedTheme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches);
+  theme.hidden = false;
+  theme.addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme !== 'dark';
+    try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch {}
+    setTheme(dark);
+  });
+
+  const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]);
+
+  function notify(message, error = false) {
+    status.textContent = message;
+    status.className = error ? 'error' : '';
+  }
+
+  const catalogFlags = ['catalogPurchases','catalogOrder','catalogHistory','catalogArticles','catalogSuppliers','catalogCategories','catalogUnits'];
+  const stockFlags = ['stockView','stockBuy','stockSell','stockHistory','stockLabels','stockConfig'];
+  const isPrincipal = user => Boolean(user?.email) && user.email === data.ownerEmail;
+  const isAdmin = user => isPrincipal(user) || user?.role === 'administrador';
+
+  function summaryMeta(user) {
+    if (isPrincipal(user)) return 'Administrador principal';
+    if (!user.active) return 'Inactiu';
+    if (isAdmin(user)) return 'Administrador';
+    const apps = [catalogFlags.some(flag => user[flag]) && 'Catalog', (user.tipsView || user.tipsPot || user.tipsPoints || user.tipsHistory) && 'Tips', stockFlags.some(flag => user[flag]) && 'Stock'].filter(Boolean);
+    return apps.length ? apps.join(' · ') : 'Sense accés';
+  }
+
+  function form(user) {
+    const key = user?.id ?? '';
+    const principal = isPrincipal(user);
+    const self = Boolean(user?.email) && user.email === data.me.email && !data.me.principal;
+    const locked = principal || self;
+    const admin = isAdmin(user);
+    const active = !user || user.active;
+    if (principal && !data.me.principal) return '<p class="meta">La fitxa de l’administrador principal no es pot modificar.</p>';
+    const check = (name, on, label, extra = '') =>
+      '<label class="worker-profile-option"><input type="checkbox" name="'+name+'" '+(on ? 'checked' : '')+extra+'> '+label+'</label>';
+    const adminNote = '<p class="meta" data-admin-only'+(admin ? '' : ' hidden')+'>Com a administrador, hi té accés complet.</p>';
+    return '<form class="worker-profile" data-user="'+escape(key)+'">'+
+      '<div class="worker-profile-fields">'+
+      '<label>Nom<input name="name" maxlength="80" value="'+escape(user?.name)+'" required></label>'+
+      '<label>Correu<input name="email" type="email" maxlength="254" autocapitalize="none" value="'+escape(user?.email)+'"'+(locked ? ' readonly' : '')+'></label>'+
+      '<label>Telèfon<input name="phone" type="tel" maxlength="48" value="'+escape(user?.phone)+'"></label></div>'+
+      '<fieldset class="admin-group"><legend>Estat i tipus d’usuari</legend>'+
+      check('active',active,'Actiu (treballa a l’empresa i participa en el repartiment de propines)',locked ? ' disabled' : '')+
+      '<p class="meta">Un usuari inactiu no pot entrar a cap app, però es guarden els seus permisos per si torna.</p>'+
+      '<label class="worker-profile-option"><input type="radio" name="role" value="treballador" '+(admin ? '' : 'checked')+(locked ? ' disabled' : '')+'> Treballador: només pot fer el que li marquis</label>'+
+      '<label class="worker-profile-option"><input type="radio" name="role" value="administrador" '+(admin ? 'checked' : '')+(locked ? ' disabled' : '')+'> Administrador: ho pot fer tot a totes les apps i entrar a GestoAdmin</label>'+
+      (principal ? '<p class="meta">És l’administrador principal. No es pot canviar.</p>' : '')+
+      (self ? '<p class="meta">Ets tu. Per canviar el teu tipus, el teu estat o el teu correu, demana-ho a un altre administrador.</p>' : '')+
+      '</fieldset>'+
+      '<fieldset class="admin-group"><legend>GestoCatalog</legend>'+adminNote+
+      '<div data-worker-only'+(admin ? ' hidden' : '')+'>'+
+      '<p class="meta">Pot entrar a GestoCatalog si té almenys una opció marcada.</p>'+
+      check('catalogPurchases',user?.catalogPurchases,'Albarans: llegir i desar albarans')+
+      check('catalogOrder',user?.catalogOrder,'Nova comanda: preparar i enviar comandes')+
+      check('catalogHistory',user?.catalogHistory,'Historial de comandes')+
+      check('catalogArticles',user?.catalogArticles,'Eines del catàleg: articles, importar, arxivar i fusionar')+
+      check('catalogSuppliers',user?.catalogSuppliers,'Proveïdors')+
+      check('catalogCategories',user?.catalogCategories,'Categories')+
+      check('catalogUnits',user?.catalogUnits,'Unitats')+'</div>'+
+      '</fieldset>'+
+      '<fieldset class="admin-group"><legend>GestoTips</legend>'+
+      adminNote+
+      '<div data-worker-only'+(admin ? ' hidden' : '')+'>'+
+      check('tipsView',user?.tipsView,'Consultar el repartiment actual')+
+      check('tipsPot',user?.tipsPot,'Entrar l’import del pot')+
+      check('tipsPoints',user?.tipsPoints,'Marcar els punts de cada treballador')+
+      check('tipsHistory',user?.tipsHistory,'Consultar l’històric de propines')+'</div>'+
+      '</fieldset>'+
+      '<fieldset class="admin-group"><legend>GestoStock</legend>'+
+      adminNote+
+      '<div data-worker-only'+(admin ? ' hidden' : '')+'>'+
+      check('stockView',user?.stockView,'Veure l’inventari i les partides')+
+      check('stockBuy',user?.stockBuy,'Registrar compres, importar albarans i editar partides')+
+      check('stockSell',user?.stockSell,'Registrar vendes')+
+      check('stockHistory',user?.stockHistory,'Consultar l’historial de vendes')+
+      check('stockLabels',user?.stockLabels,'Imprimir etiquetes')+
+      check('stockConfig',user?.stockConfig,'Catàleg d’articles, proveïdors i paràmetres')+'</div>'+
+      '</fieldset>'+
+      '<button class="primary">'+(user ? 'Desa' : 'Afegeix l’usuari')+'</button></form>';
+  }
+
+  function row(user) {
+    return '<details class="worker-profile-item" data-row="'+escape(user.id)+'"'+(openId === user.id ? ' open' : '')+'>'+
+      '<summary><strong>'+escape(user.name)+'</strong><span>'+escape(summaryMeta(user))+'</span></summary>'+form(user)+'</details>';
+  }
+
+  let section = 'users';
+  const sections = {
+    users:{label:'Usuaris', render:renderUsers}
+  };
+
+  function render() {
+    content.innerHTML = '<nav class="admin-sections" aria-label="Seccions">'+
+      Object.entries(sections).map(([key,item]) => '<button type="button" data-section="'+key+'"'+(key === section ? ' aria-current="page"' : '')+'>'+escape(item.label)+'</button>').join('')+
+      '</nav>'+sections[section].render();
+  }
+
+  function renderUsers() {
+    const users = data.users.slice().sort((a,b) => a.name.localeCompare(b.name,'ca',{sensitivity:'base'}));
+    const current = users.filter(user => user.active || isPrincipal(user));
+    const inactive = users.filter(user => !current.includes(user));
+    const admins = current.filter(isAdmin);
+    const workers = current.filter(user => !isAdmin(user));
+    return '<section class="card worker-profiles main-card"><h2>Usuaris</h2>'+
+      '<p class="meta">Aquí decideixes qui pot entrar a cada app i què hi pot fer. Tothom entra amb el seu correu i la seva contrasenya.</p>'+
+      '<details class="worker-profile-item"'+(openId === '' ? ' open' : '')+' data-row=""><summary><strong>Afegeix un usuari</strong></summary>'+form(null)+'</details>'+
+      '<h3>Administradors</h3>'+
+      (data.ownerEmail && !admins.some(isPrincipal)
+        ? '<div class="item"><strong>'+escape(data.ownerEmail)+'</strong> <span class="meta">· Administrador principal (fixat al servidor)</span></div>' : '')+
+      admins.map(row).join('')+
+      '<h3>Treballadors</h3>'+(workers.length ? workers.map(row).join('') : '<p class="meta">Encara no hi ha treballadors actius.</p>')+
+      '</section>'+
+      (inactive.length ? '<section class="card worker-profiles"><details class="worker-profile-inactive"'+(inactive.some(user => user.id === openId) ? ' open' : '')+'>'+
+        '<summary><strong>Inactius</strong><span>'+inactive.length+'</span></summary>'+inactive.map(row).join('')+'</details></section>' : '')+
+      (data.unlinked.length ? '<section class="card"><h2>Accessos a GestoCatalog sense fitxa</h2>'+
+        '<p class="meta">Aquests correus poden entrar a GestoCatalog però no tenen fitxa d’usuari.</p>'+
+        data.unlinked.map(email => '<div class="row item"><span>'+escape(email)+'</span>'+
+          '<button type="button" class="remove" data-revoke="'+escape(email)+'">Retira l’accés</button></div>').join('')+
+        '</section>' : '');
+  }
+
+  async function send(payload, button, success) {
+    if (busy) return;
+    busy = true;
+    if (button) button.disabled = true;
+    notify('Desant…');
+    try {
+      const result = await request(payload);
+      data = result;
+      openId = null;
+      render();
+      notify(success);
+    } catch (error) {
+      notify(error.message || 'No s’ha pogut desar.',true);
+      if (button?.isConnected) button.disabled = false;
+    } finally {
+      busy = false;
+    }
+  }
+
+  content.addEventListener('change',event => {
+    if (event.target.name !== 'role') return;
+    const form = event.target.form;
+    const admin = form.elements.role.value === 'administrador';
+    form.querySelectorAll('[data-worker-only]').forEach(element => { element.hidden = admin; });
+    form.querySelectorAll('[data-admin-only]').forEach(element => { element.hidden = !admin; });
+  });
+
+  content.addEventListener('toggle',event => {
+    if (event.target.matches?.('details[data-row]') && event.target.open) openId = event.target.dataset.row;
+  },true);
+
+  content.addEventListener('click',event => {
+    const tab = event.target.closest('[data-section]');
+    if (tab) {
+      section = tab.dataset.section;
+      openId = null;
+      notify('');
+      render();
+      return;
+    }
+    const revoke = event.target.closest('[data-revoke]');
+    if (!revoke) return;
+    if (!confirm('Vols retirar l’accés a GestoCatalog de '+revoke.dataset.revoke+'?')) return;
+    void send({action:'revokeAccess',email:revoke.dataset.revoke},revoke,'Accés retirat.');
+  });
+
+  content.addEventListener('submit',event => {
+    event.preventDefault();
+    const form = event.target;
+    const fields = form.elements;
+    const role = [...form.querySelectorAll('input[name=role]')].find(input => input.checked)?.value ?? 'treballador';
+    void send({
+      action:'saveUser', id:form.dataset.user, name:fields.name.value, email:fields.email.value, phone:fields.phone.value,
+      role, active:fields.active.checked, ...Object.fromEntries(catalogFlags.map(flag => [flag,fields[flag].checked])), tipsView:fields.tipsView.checked, tipsPot:fields.tipsPot.checked, tipsPoints:fields.tipsPoints.checked, tipsHistory:fields.tipsHistory.checked,
+      ...Object.fromEntries(stockFlags.map(flag => [flag,fields[flag].checked]))
+    },event.submitter,'Desat.');
+  });
+
+  render();
+  notify('');
+}
+
+function localAdminRequest(body) {
+  return fetch('/GestoAdmin/api',{method:body ? 'POST' : 'GET',cache:'no-store',
+    headers:body ? {'Content-Type':'application/json'} : {},body:body ? JSON.stringify(body) : undefined})
+    .then(async response => {
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error);
+      return result;
+    });
+}
+
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js';
+import {
+  getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendEmailVerification, sendPasswordResetEmail, signOut, reload, checkActionCode, applyActionCode, verifyPasswordResetCode, confirmPasswordReset
+} from 'https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js';
+
+async function startStaffApp(apiOrigin, mountApp, apiPath = '/api', firebaseAppName = 'tracacomandes', appLabel = 'GestoCatalog') {
+  const panel = document.querySelector('#login-panel');
+  const form = document.querySelector('#login-form');
+  const message = document.querySelector('#login-status');
+  const actions = document.querySelector('#verify-actions');
+  const repair = document.querySelector('#verify-link-form');
+  const resetPanel = document.querySelector('#reset-panel');
+  const resetForm = document.querySelector('#reset-link-form');
+  const logout = document.querySelector('#logout');
+  const workspace = document.querySelector('#workspace');
+  let auth;
+  let mounted = false;
+  let busy = false;
+  const emailAction = new URL(location.href);
+  const incomingMode = emailAction.searchParams.get('mode');
+  let actionMode = ['verifyEmail','resetPassword'].includes(incomingMode) && emailAction.searchParams.get('oobCode') ? incomingMode : '';
+  if (actionMode) history.replaceState(null,'',location.pathname);
+
+  function show(text) {
+    message.textContent = text;
+  }
+
+  function errorMessage(error) {
+    switch (error.code) {
+      case 'auth/invalid-credential': return 'El correu o la contrasenya no són correctes.';
+      case 'auth/email-already-in-use': return 'Aquest correu ja té compte. Inicia sessió o restableix la contrasenya.';
+      case 'auth/weak-password': return 'Tria una contrasenya d’almenys sis caràcters.';
+      case 'auth/too-many-requests': return 'Massa intents. Torna-ho a provar més tard.';
+      default: return error.status ? error.message : 'No hi ha connexió amb el servei d’accés. Torna-ho a provar.';
+    }
+  }
+
+  async function request(body) {
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) throw Object.assign(new Error('Torna a iniciar sessió.'),{status:401});
+    const headers = {Authorization:'Bearer '+token};
+    if (body) headers['Content-Type'] = 'application/json';
+    const response = await fetch(apiOrigin+apiPath,{method:body ? 'POST' : 'GET',headers,
+      body:body ? JSON.stringify(body) : undefined,cache:'no-store',credentials:'omit'});
+    const result = await response.json();
+    if (!response.ok) throw Object.assign(new Error(result.error),{status:response.status});
+    return result;
+  }
+
+  async function enter(user) {
+    form.hidden = Boolean(user);
+    resetPanel.hidden = Boolean(user);
+    actions.hidden = !user;
+    repair.hidden = !user || user.emailVerified;
+    logout.hidden = !user;
+    if (!user) {
+      show('');
+      return;
+    }
+    show('Comprovant l’accés…');
+    try {
+      const data = await request();
+      if (auth.currentUser?.uid !== user.uid || mounted) return;
+      mounted = true;
+      panel.hidden = true;
+      workspace.hidden = false;
+      mountApp(request,data);
+    } catch (error) {
+      document.querySelector('#resend-verification').hidden = user.emailVerified;
+      show(errorMessage(error));
+    }
+  }
+
+  async function withFeedback(operation) {
+    if (busy) return;
+    busy = true;
+    try { await operation(); }
+    catch (error) { show(errorMessage(error)); }
+    finally { busy = false; }
+  }
+
+  try {
+    const response = await fetch(apiOrigin+'/auth-config',{cache:'no-store',credentials:'omit'});
+    if (!response.ok) throw new Error('Firebase configuration unavailable');
+    // GestoCatalog manté el nom 'tracacomandes' perquè la sessió sobrevisqui al canvi de nom.
+    auth = getAuth(initializeApp(await response.json(),firebaseAppName));
+    auth.languageCode = 'ca';
+  } catch {
+    show('L’accés de l’equip no està disponible. Torna-ho a provar més tard.');
+    form.hidden = true;
+    resetPanel.hidden = true;
+    return;
+  }
+
+  const emailField = form.elements.email;
+  form.addEventListener('submit',event => {
+    event.preventDefault();
+    void withFeedback(async () => {
+      const email = emailField.value.trim();
+      const password = form.elements.password.value;
+      if (event.submitter?.value === 'register') {
+        const {user} = await createUserWithEmailAndPassword(auth,email,password);
+        await sendEmailVerification(user);
+        show('T’hem enviat un correu de verificació. Obre’l i torna aquí per continuar.');
+      } else {
+        await signInWithEmailAndPassword(auth,email,password);
+      }
+      form.reset();
+    });
+  });
+
+  function emailActionCode(value, mode) {
+    try {
+      const link = new URL(value.trim());
+      if (((link.origin === 'https://'+auth.app.options.authDomain && link.pathname === '/__/auth/action') ||
+           (link.origin === 'https://jninforner.github.io' && ['/GestoComandes/','/NexaComandes/','/tracacomandes/'].includes(link.pathname))) && link.searchParams.get('mode') === mode) {
+        return link.searchParams.get('oobCode');
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  resetForm.addEventListener('submit',event => {
+    event.preventDefault();
+    void withFeedback(async () => {
+      const code = emailActionCode(resetForm.elements.link.value,'resetPassword');
+      if (!code) {
+        show('Enganxa l’enllaç complet del correu de restabliment de contrasenya de '+appLabel+'.');
+        return;
+      }
+      try {
+        const email = await verifyPasswordResetCode(auth,code);
+        await confirmPasswordReset(auth,code,resetForm.elements.password.value);
+        resetForm.reset();
+        resetForm.elements.link.closest('label').hidden = false;
+        resetPanel.open = false;
+        if (actionMode) {
+          actionMode = '';
+          if (auth.currentUser) await signOut(auth);
+          await enter(null);
+        }
+        emailField.value = email;
+        form.elements.password.value = '';
+        form.elements.password.focus();
+        show('Contrasenya desada. Ja pots entrar amb la nova.');
+      } catch (error) {
+        resetForm.elements.password.value = '';
+        if (['auth/invalid-action-code','auth/expired-action-code'].includes(error.code)) {
+          show('Aquest enllaç ha caducat o ja s’ha utilitzat. Demana’n un de nou amb «He oblidat la contrasenya».');
+        } else {
+          throw error;
+        }
+      }
+    });
+  });
+
+  document.querySelector('#password-reset').onclick = event => {
+    event.preventDefault();
+    void withFeedback(async () => {
+      if (!emailField.reportValidity()) return;
+      await sendPasswordResetEmail(auth,emailField.value.trim());
+      show('Si existeix un compte amb aquest correu, rebràs un enllaç per restablir la contrasenya.');
+    });
+  };
+
+  document.querySelector('#retry-login').onclick = () => withFeedback(async () => {
+    if (!auth.currentUser) return;
+    await reload(auth.currentUser);
+    if (!auth.currentUser) return;
+    await auth.currentUser.getIdToken(true);
+    await enter(auth.currentUser);
+  });
+
+  document.querySelector('#resend-verification').onclick = () => withFeedback(async () => {
+    if (!auth.currentUser) return;
+    await sendEmailVerification(auth.currentUser);
+    show('T’hem tornat a enviar el correu de verificació.');
+  });
+
+  repair.addEventListener('submit',event => {
+    event.preventDefault();
+    void withFeedback(async () => {
+      const user = auth.currentUser;
+      if (!user && actionMode !== 'verifyEmail') return;
+      const code = emailActionCode(repair.elements.link.value,'verifyEmail');
+      if (!code) {
+        show('Enganxa l’enllaç complet del correu de verificació de '+appLabel+'.');
+        return;
+      }
+      try {
+        const info = await checkActionCode(auth,code);
+        if (info.operation !== 'VERIFY_EMAIL' || (user && actionMode !== 'verifyEmail' && info.data.email?.toLowerCase() !== user.email?.toLowerCase())) {
+          show('Aquest enllaç correspon a un altre compte.');
+          return;
+        }
+        await applyActionCode(auth,code);
+        repair.reset();
+        actionMode = '';
+        if (user && info.data.email?.toLowerCase() === user.email?.toLowerCase()) {
+          await reload(user);
+          await user.getIdToken(true);
+          await enter(user);
+        } else {
+          if (user) await signOut(auth);
+          await enter(null);
+          emailField.value = info.data.email || '';
+          show('Correu verificat. Ja pots iniciar sessió.');
+        }
+      } catch (error) {
+        if (['auth/invalid-action-code','auth/expired-action-code'].includes(error.code)) {
+          show('L’enllaç ha caducat o ja s’ha utilitzat. Prem «Comprova l’accés» o demana un correu nou.');
+        } else {
+          throw error;
+        }
+      }
+    });
+  });
+
+  logout.onclick = () => withFeedback(async () => {
+    await signOut(auth);
+    location.reload();
+  });
+
+  if (actionMode) {
+    form.hidden = true;
+    resetPanel.hidden = actionMode !== 'resetPassword';
+    resetPanel.open = !resetPanel.hidden;
+    repair.hidden = actionMode !== 'verifyEmail';
+    const current = resetPanel.hidden ? repair : resetForm;
+    current.elements.link.value = emailAction.href;
+    current.elements.link.closest('label').hidden = true;
+    show(actionMode === 'resetPassword' ? 'Tria una contrasenya nova.' : 'Prem el botó per confirmar el correu.');
+  }
+
+  onAuthStateChanged(auth,user => {
+    if (actionMode) return;
+    if (mounted && !user) location.reload();
+    else if (!mounted) void enter(user);
+  });
+}
+
+startStaffApp(location.hostname === "jninforner.github.io" ? "https://gesto-apps.jninforner.workers.dev" : location.origin,mountApp,"/GestoAdmin/api","gestoadmin","GestoAdmin");
+</script>
+</body>
+</html>
