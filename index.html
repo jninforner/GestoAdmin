@@ -266,6 +266,14 @@ details.order-category[open]>summary{border-radius:11px 11px 0 0}
 .order-entry>.actions{margin-top:8px}
 .sheet-name{display:block;margin-bottom:12px}
 .sheet-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+.purchase-price{margin-bottom:4px}
+.purchase-price:empty{display:none}
+.purchase-price>.meta{align-self:end;margin:0 0 10px}
+.price-stats{display:grid;gap:8px;margin:0 0 8px}
+.price-stats>div{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:6px}
+.price-stats>div:first-child{border-top:0;padding-top:0}
+.price-stats dt{color:var(--mu)}
+.price-stats dd{margin:0;display:grid;justify-items:end;text-align:end}
 
 .worker-profiles .worker-profile-item{border-top:1px solid var(--border);padding:10px 0}
 .worker-profile-item>summary,.worker-profile-inactive>summary{cursor:pointer;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:12px}
