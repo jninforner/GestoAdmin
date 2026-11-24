@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>GestoAdmin</title>
-<link rel="icon" type="image/png" href="./icon.png?v=1.7.1">
-<link rel="apple-touch-icon" sizes="180x180" href="./icon.png?v=1.7.1">
+<link rel="icon" type="image/png" href="./icon.png?v=1.7.2">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon.png?v=1.7.2">
 <style>:root{color-scheme:light;--bg:#f7f8fd;--tx:#28377e;--mu:#566598;--ln:#303f91;--surface:#fff;--soft:#f0f2fc;--border:#d4daf1;--field:#b6bfdf;--on:#fff;--red:#b42318;--green:#17734a}
 :root[data-theme=dark]{color-scheme:dark;--bg:#10152c;--tx:#e5e9ff;--mu:#adb8e5;--ln:#a1afff;--surface:#1b2447;--soft:#232f59;--border:#425080;--field:#6371a0;--on:#10152c;--red:#ff9992;--green:#84dbab}
 *{box-sizing:border-box}
@@ -264,7 +264,7 @@ img,video,canvas{max-width:100%;height:auto}
 <body>
 <main>
 <header class="topbar">
-  <div class="brand"><h1>GestoAdmin</h1><div class="meta version">Backoffice de les apps Gesto · Versió 1.7.1</div></div>
+  <div class="brand"><h1>GestoAdmin</h1><div class="meta version">Backoffice de les apps Gesto · Versió 1.7.2</div></div>
   <div class="top-actions">
  <button id="theme" type="button" aria-pressed="false" hidden>Mode fosc</button>
     <button id="logout" type="button" aria-label="Sortir" hidden><span aria-hidden="true">↪︎</span><span class="top-action-label" aria-hidden="true">Sortir</span></button>
@@ -382,7 +382,7 @@ function mountApp(request, initialData) {
       check('catalogPurchases',user?.catalogPurchases,'Albarans: llegir i desar albarans')+
       check('catalogOrder',user?.catalogOrder,'Nova comanda: preparar i enviar comandes')+
       check('catalogHistory',user?.catalogHistory,'Historial de comandes')+
-      check('catalogArticles',user?.catalogArticles,'Eines del catàleg: articles, importar, arxivar i fusionar')+
+      check('catalogArticles',user?.catalogArticles,'Articles: crear, editar, importar, arxivar i fusionar')+
       check('catalogSuppliers',user?.catalogSuppliers,'Proveïdors')+
       check('catalogCategories',user?.catalogCategories,'Categories')+
       check('catalogUnits',user?.catalogUnits,'Unitats')+'</div>'+
