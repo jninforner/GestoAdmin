@@ -147,7 +147,12 @@ img,video,canvas{max-width:100%;height:auto}
 #order-dialog::backdrop{background:#11183180}
 #order-dialog .order-editor{padding:0}
 
-.order-lines .order-lookup{margin:14px 0 0}
+.order-lines .order-lookup{position:sticky;top:0;z-index:4;margin:10px 0 0;padding:6px 0;background:inherit}
+.order-lines.is-searching .order-lookup{box-shadow:0 6px 8px -6px #11183140}
+.order-lines.is-searching [id^=list-]{min-height:100vh}
+.order-lines.hide-filters .order-list-filters{display:none}
+.order-lines .order-list-filters{margin-top:6px}
+.list-tools:not(:has(button:not([hidden]))){display:none}
 /* Cerca comuna de Nova comanda i Articles */
 .article-lookup{display:flex;gap:8px;align-items:end}
 .article-lookup label{flex:1 1 auto;min-width:0}
@@ -171,7 +176,7 @@ img,video,canvas{max-width:100%;height:auto}
   .order-list-filters label{width:100%;gap:2px;font-size:12px}
   .order-list-filters select{height:40px;min-height:40px;padding:4px 6px;text-overflow:ellipsis}
   .list-mode{grid-column:1/-1;justify-self:start;min-height:40px;padding-block:4px;font-size:14px}
-  .order-lines .order-lookup{margin-top:6px}
+  .order-lines .order-lookup{margin-top:4px;padding:4px 0}
   .article-lookup{gap:6px}
   .article-lookup label{gap:2px;font-size:12px}
   .article-lookup input,.article-lookup button{min-height:42px;padding-block:4px}
