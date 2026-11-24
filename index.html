@@ -231,6 +231,14 @@ img,video,canvas{max-width:100%;height:auto}
 #quick-article label.full{display:grid;margin-bottom:12px}
 #quick-article .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
 .order-list-row.just-added{outline:3px solid var(--accent,#7b8cf0);outline-offset:2px;border-radius:10px;transition:outline-color .3s}
+details.order-category>summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;background:var(--soft);border-radius:11px;font-weight:700;font-size:15px;cursor:pointer;list-style:none}
+details.order-category>summary::-webkit-details-marker{display:none}
+details.order-category>summary::before{content:'▸';margin-right:4px;transition:transform .15s}
+details.order-category[open]>summary::before{transform:rotate(90deg)}
+details.order-category>summary .group-name{flex:1 1 auto}
+details.order-category>summary .meta{font-weight:400;font-size:13px}
+details.order-category[open]>summary{border-radius:11px 11px 0 0}
+.group-tools{display:flex;justify-content:flex-end;margin-top:10px}
 
 .worker-profiles .worker-profile-item{border-top:1px solid var(--border);padding:10px 0}
 .worker-profile-item>summary,.worker-profile-inactive>summary{cursor:pointer;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:12px}
