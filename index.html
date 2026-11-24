@@ -272,7 +272,7 @@ details.order-category[open]>summary{border-radius:11px 11px 0 0}
 .order-day-head strong{font-size:17px}
 .order-day-head .meta{color:var(--on);opacity:.85;white-space:nowrap}
 .order-entry{padding:10px 12px;border-top:1px solid var(--border)}
-.order-day-head+.order-entry{border-top:0}
+.order-day-head+.order-entry,.order-day-head+.swipe>.order-entry{border-top:0}
 .order-entry>.actions{margin-top:8px}
 .sheet-name{display:block;margin-bottom:12px}
 .sheet-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -288,6 +288,23 @@ details.order-category[open]>summary{border-radius:11px 11px 0 0}
 /* Diàleg «A qui ho demanem?»: un botó per proveïdor */
 .supplier-choice{display:grid;gap:8px;margin-top:10px}
 .supplier-choice button{width:100%;justify-content:flex-start;min-height:48px}
+/* Lliscar (ESTIL.md): cap a l'esquerra elimina (vermell); cap a la dreta arxiva o recupera (blau) */
+.swipe{position:relative;overflow:hidden;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.swipe>.swipe-bg{position:absolute;inset:0;display:none;align-items:center;padding:0 18px;color:var(--on)}
+.swipe.left>.swipe-bg{display:flex;justify-content:flex-end;background:var(--red)}
+.swipe.right>.swipe-bg{display:flex;justify-content:flex-start;background:var(--ln)}
+.swipe>.swipe-bg svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.swipe>.swipe-row{position:relative}
+#status .undo-button{min-height:32px;margin-inline-start:10px;padding:4px 12px;font-size:14px}
+/* Paperera */
+.trash-list{margin-top:10px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.trash-list>.meta{padding:12px;margin:0}
+.trash-row{display:flex;flex-direction:column;gap:2px;padding:10px 12px;min-height:44px;justify-content:center}
+.swipe+.swipe>.trash-row{border-top:1px solid var(--border)}
+.trash-row strong,.trash-row .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.swipe.dragging{position:relative;z-index:2;overflow:visible}
+.swipe.dragging>.catalog-row{box-shadow:0 6px 18px rgba(0,0,0,.18);border-radius:10px;opacity:.95}
+.swipe>.item.swipe-row{padding-bottom:8px}
 
 .worker-profiles .worker-profile-item{border-top:1px solid var(--border);padding:10px 0}
 .worker-profile-item>summary,.worker-profile-inactive>summary{cursor:pointer;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:12px}
