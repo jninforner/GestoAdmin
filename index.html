@@ -171,8 +171,6 @@ img,video,canvas{max-width:100%;height:auto}
   .order-list-filters label{width:100%;gap:2px;font-size:12px}
   .order-list-filters select{height:40px;min-height:40px;padding:4px 6px;text-overflow:ellipsis}
   .list-mode{grid-column:1/-1;justify-self:start;min-height:40px;padding-block:4px;font-size:14px}
-  .list-tools{gap:6px}
-  .list-tools button{min-height:40px;padding-block:4px;font-size:14px}
   .order-lines .order-lookup{margin-top:6px}
   .article-lookup{gap:6px}
   .article-lookup label{gap:2px;font-size:12px}
@@ -248,6 +246,15 @@ details.order-category[open]>summary{border-radius:11px 11px 0 0}
 .is-selected .order-marker{background:var(--ln);color:var(--on);border-color:var(--ln)}
 .order-list-row.is-selected strong{color:var(--green)}
 .order-list-row.is-select{grid-template-columns:minmax(0,1fr) 44px}
+
+/* Mòbil: botons de la fila d'eines en quadrícula (va al final perquè guanyi a .list-tools de dalt). */
+@media(max-width:480px){
+  .list-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .list-tools button{width:100%;min-height:40px;padding-block:4px;font-size:14px}
+  .list-tools [data-new-article]{grid-column:1;grid-row:1}
+  .list-tools .group-toggle{grid-column:2;grid-row:1;margin-left:0}
+  .list-tools #select-visible-articles{grid-column:1/-1}
+}
 
 .worker-profiles .worker-profile-item{border-top:1px solid var(--border);padding:10px 0}
 .worker-profile-item>summary,.worker-profile-inactive>summary{cursor:pointer;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:12px}
