@@ -216,8 +216,11 @@ img,video,canvas{max-width:100%;height:auto}
 .article-open .meta{font-size:14px}
 .icon-button{min-width:0;width:36px;min-height:36px;padding:0}
 .catalog-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px;border-top:1px solid var(--border);padding:2px 0}
-.catalog-row.with-move{grid-template-columns:minmax(0,1fr) auto auto}
-.catalog-row.with-move .order-steps{padding:0}
+.catalog-row.with-move{grid-template-columns:auto minmax(0,1fr) auto;background:var(--surface)}
+.drag-handle{min-width:0;width:36px;min-height:36px;padding:0;border:0;background:none;color:var(--mu);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;display:grid;place-items:center}
+.drag-handle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.catalog-row.dragging{position:relative;z-index:2;box-shadow:0 6px 18px rgba(0,0,0,.18);border-radius:10px;opacity:.95}
+.catalog-row.dragging .drag-handle{cursor:grabbing}
 .catalog-name{min-width:0;padding:6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .icon-button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .icon-button.remove{border-color:var(--red)}
