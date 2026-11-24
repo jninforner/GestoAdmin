@@ -119,8 +119,8 @@ img,video,canvas{max-width:100%;height:auto}
 
 .order-list-heading{display:flex;align-items:start;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .order-list-heading h2{margin:0}
-#order-visibility{gap:6px;padding-inline:10px}
-#order-visibility[aria-pressed=true]{background:var(--ln);color:var(--on)}
+.list-mode{gap:6px;padding-inline:10px;white-space:nowrap}
+.list-mode[aria-pressed=true]{background:var(--ln);color:var(--on)}
 .order-send{margin-top:12px}
 .order-category{margin-top:16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
 .order-category h3{margin:0;padding:7px 11px;background:var(--soft);border-radius:11px 11px 0 0;font-size:15px}
@@ -170,7 +170,9 @@ img,video,canvas{max-width:100%;height:auto}
   .order-list-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 8px}
   .order-list-filters label{width:100%;gap:2px;font-size:12px}
   .order-list-filters select{height:40px;min-height:40px;padding:4px 6px;text-overflow:ellipsis}
-  #order-visibility{grid-column:1/-1;justify-self:start;min-height:40px;padding-block:4px;font-size:14px}
+  .list-mode{grid-column:1/-1;justify-self:start;min-height:40px;padding-block:4px;font-size:14px}
+  .list-tools{gap:6px}
+  .list-tools button{min-height:40px;padding-block:4px;font-size:14px}
   .order-lines .order-lookup{margin-top:6px}
   .article-lookup{gap:6px}
   .article-lookup label{gap:2px;font-size:12px}
@@ -236,11 +238,15 @@ details.order-category[open]>summary::before{transform:rotate(90deg)}
 details.order-category>summary .group-name{flex:1 1 auto}
 details.order-category>summary .meta{font-weight:400;font-size:13px}
 details.order-category[open]>summary{border-radius:11px 11px 0 0}
-.group-tools{display:flex;justify-content:flex-end;margin-top:10px}
+/* Eines comunes de la llista: accions a l'esquerra, «Replega-ho tot» a la dreta */
+.list-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.list-tools .group-toggle{margin-left:auto}
+.list-extra{margin-top:16px}
+.list-extra .card{margin:0}
 /* Files de la pantalla Articles (mateixa fila que Nova comanda, per marcar) */
-.order-list-row.is-select strong{color:var(--tx)}
 .order-list-row.is-selected{background:var(--soft)}
 .is-selected .order-marker{background:var(--ln);color:var(--on);border-color:var(--ln)}
+.order-list-row.is-selected strong{color:var(--green)}
 .order-list-row.is-select{grid-template-columns:minmax(0,1fr) 44px}
 
 .worker-profiles .worker-profile-item{border-top:1px solid var(--border);padding:10px 0}
