@@ -257,9 +257,13 @@ details.order-category[open]>summary{border-radius:11px 11px 0 0}
 }
 .order-state{display:inline-block;margin-inline-start:6px;color:var(--red);font-size:13px;font-weight:650}
 .order-state.is-sent{color:var(--green)}
-.order-day{margin-top:14px}
-.order-day>h3{margin:0;padding:7px 11px;background:var(--soft);border-radius:11px}
-.order-day>h3 .meta{font-weight:500;white-space:nowrap}
+.order-day{margin-top:16px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden}
+.order-day-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:var(--ln);color:var(--on)}
+.order-day-head strong{font-size:17px}
+.order-day-head .meta{color:var(--on);opacity:.85;white-space:nowrap}
+.order-entry{padding:10px 12px;border-top:1px solid var(--border)}
+.order-day-head+.order-entry{border-top:0}
+.order-entry>.actions{margin-top:8px}
 
 .worker-profiles .worker-profile-item{border-top:1px solid var(--border);padding:10px 0}
 .worker-profile-item>summary,.worker-profile-inactive>summary{cursor:pointer;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:12px}
