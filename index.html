@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>GestoAdmin</title>
-<link rel="icon" type="image/png" href="./icon.png?v=1.8.3">
-<link rel="apple-touch-icon" sizes="180x180" href="./icon.png?v=1.8.3">
+<link rel="icon" type="image/png" href="./icon.png?v=1.9.0">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon.png?v=1.9.0">
 <style>:root{color-scheme:light;--bg:#f7f8fd;--tx:#28377e;--mu:#566598;--ln:#303f91;--surface:#fff;--soft:#f0f2fc;--border:#d4daf1;--field:#b6bfdf;--on:#fff;--red:#b42318;--green:#17734a}
 :root[data-theme=dark]{color-scheme:dark;--bg:#10152c;--tx:#e5e9ff;--mu:#adb8e5;--ln:#a1afff;--surface:#1b2447;--soft:#232f59;--border:#425080;--field:#6371a0;--on:#10152c;--red:#ff9992;--green:#84dbab}
 *{box-sizing:border-box}
@@ -344,13 +344,28 @@ details.order-category[open]>summary{border-radius:11px 11px 0 0}
 #status:empty{display:none}
 #status{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:1000;width:max-content;max-width:min(600px,calc(100% - 24px));margin:0;padding:12px 16px;border-radius:12px;background:var(--surface);color:var(--tx);border:1px solid var(--border);box-shadow:0 8px 28px #11183140;font-weight:600;cursor:pointer}
 #status.error{color:var(--red);border-color:var(--red)}
+
+/* Lliscar (ESTIL.md): cap a l'esquerra elimina (vermell); cap a la dreta arxiva o recupera (blau) */
+.swipe{position:relative;overflow:hidden;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.swipe>.swipe-bg{position:absolute;inset:0;display:none;align-items:center;padding:0 18px;color:var(--on)}
+.swipe.left>.swipe-bg{display:flex;justify-content:flex-end;background:var(--red)}
+.swipe.right>.swipe-bg{display:flex;justify-content:flex-start;background:var(--ln)}
+.swipe>.swipe-bg svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.swipe>.swipe-row{position:relative}
+#status .undo-button{min-height:32px;margin-inline-start:10px;padding:4px 12px;font-size:14px}
+/* Paperera */
+.trash-list{margin-top:10px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.trash-list>.meta{padding:12px;margin:0}
+.trash-row{display:flex;flex-direction:column;gap:2px;padding:10px 12px;min-height:44px;justify-content:center}
+.swipe+.swipe>.trash-row{border-top:1px solid var(--border)}
+.trash-row strong,.trash-row .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body>
 <main>
 <header class="topbar">
-  <div class="brand"><h1>GestoAdmin</h1><div class="meta version">Backoffice de les apps Gesto · Versió 1.8.3</div></div>
+  <div class="brand"><h1>GestoAdmin</h1><div class="meta version">Backoffice de les apps Gesto · Versió 1.9.0</div></div>
   <div class="top-actions">
  <button id="theme" type="button" aria-pressed="false" hidden>Mode fosc</button>
     <button id="logout" type="button" aria-label="Sortir" hidden><span aria-hidden="true">↪︎</span><span class="top-action-label" aria-hidden="true">Sortir</span></button>
@@ -410,7 +425,7 @@ function setupNotices() {
     place();
     if (!status.classList.contains('error') && status.textContent !== 'Desant…') timer = setTimeout(() => { status.textContent = ''; },6000);
   }).observe(status,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']});
-  status.addEventListener('click',() => { status.textContent = ''; });
+  status.addEventListener('click',event => { if (!event.target.closest('[data-undo]')) status.textContent = ''; });
   document.addEventListener('close',() => {
     const home = document.querySelector('#workspace');
     if (home && status.parentElement !== home) home.append(status);
@@ -431,6 +446,131 @@ function setupNotices() {
   },true);
 }
 setupNotices();
+
+// Lliscar per eliminar o arxivar i avís amb «Desfés» (ESTIL.md), comú a GestoTips i GestoAdmin.
+// Fila lliscable: swipeOpen(clau, es pot eliminar, es pot arxivar/restaurar, icona de la dreta) + fila amb la classe «swipe-row» + '</div>'.
+// setupSwipe(acció, ocupat): acció(clau, 'left'|'right') retorna (o promet) true si s'ha fet; si no, la fila torna al seu lloc.
+const swipeIcons = {
+  left:'<svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></svg>',
+  archive:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M10 13h4"/></svg>',
+  restore:'<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>'
+};
+function swipeOpen(key, left, right, rightIcon = 'archive') {
+  const attr = String(key).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  return '<div class="swipe" data-swipe="'+attr+'"'+(left ? ' data-left="1"' : '')+(right ? ' data-right="1" data-right-icon="'+rightIcon+'"' : '')+'><div class="swipe-bg" aria-hidden="true"></div>';
+}
+// Avís d'èxit amb el botó «Desfés» (dura els 6 segons dels avisos d'èxit).
+function showUndo(message, undo) {
+  const status = document.querySelector('#status');
+  status.classList.remove('error');
+  status.textContent = message;
+  if (!undo) return;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'undo-button';
+  button.dataset.undo = '';
+  button.textContent = 'Desfés';
+  button.addEventListener('click',() => { status.textContent = ''; undo(); },{once:true});
+  status.append(' ',button);
+}
+function setupSwipe(action, isBusy = () => false) {
+  let touch = null;
+  let wheel = null;
+  let quietUntil = 0;
+  let blockClick = 0;
+  function backgroundOf(element) {
+    for (let node = element; node && node !== document.documentElement; node = node.parentElement) {
+      const color = getComputedStyle(node).backgroundColor;
+      if (color && color !== 'transparent' && color !== 'rgba(0, 0, 0, 0)') return color;
+    }
+    return getComputedStyle(document.body).backgroundColor;
+  }
+  function begin(wrap) {
+    const row = wrap.querySelector('.swipe-row');
+    if (getComputedStyle(row).backgroundColor === 'rgba(0, 0, 0, 0)') row.style.background = backgroundOf(wrap.parentElement);
+    row.style.transition = 'none';
+    return {wrap,row,dx:0,width:wrap.offsetWidth || 1};
+  }
+  function move(state, dx) {
+    if (dx < 0 && !state.wrap.dataset.left) dx = 0;
+    if (dx > 0 && !state.wrap.dataset.right) dx = 0;
+    state.dx = dx;
+    state.row.style.transform = dx ? 'translateX('+dx+'px)' : '';
+    state.wrap.classList.toggle('left',dx < 0);
+    state.wrap.classList.toggle('right',dx > 0);
+    const side = dx < 0 ? 'l' : dx > 0 ? 'r' : '';
+    const bg = state.wrap.firstElementChild;
+    if (bg.dataset.icon !== side) {
+      bg.dataset.icon = side;
+      bg.innerHTML = side === 'l' ? swipeIcons.left : side === 'r' ? swipeIcons[state.wrap.dataset.rightIcon] || swipeIcons.archive : '';
+    }
+  }
+  function reset(state) {
+    state.row.style.transition = 'transform .2s';
+    state.row.style.transform = '';
+    setTimeout(() => { state.wrap.classList.remove('left','right'); state.row.style.background = ''; state.row.style.transition = ''; },200);
+  }
+  function end(state) {
+    quietUntil = Date.now()+400;
+    const dir = state.dx <= -state.width/2 ? 'left' : state.dx >= state.width/2 ? 'right' : '';
+    if (!dir) { reset(state); return; }
+    state.row.style.transition = 'transform .18s';
+    state.row.style.transform = 'translateX('+(dir === 'left' ? -state.width : state.width)+'px)';
+    setTimeout(async () => {
+      let ok = false;
+      try { ok = await action(state.wrap.dataset.swipe,dir); } catch { ok = false; }
+      // Si no s'ha pogut fer, la fila torna al seu lloc; l'avís d'error n'explica el motiu.
+      if (!ok && state.wrap.isConnected) reset(state);
+    },180);
+  }
+  // Dit o ratolí: arrossegar la fila.
+  document.addEventListener('pointerdown',event => {
+    if (event.button > 0) return;
+    const wrap = event.target.closest('.swipe');
+    if (!wrap || event.target.closest('input,select,textarea')) return;
+    touch = {wrap,x:event.clientX,y:event.clientY,id:event.pointerId,state:null};
+  });
+  document.addEventListener('pointermove',event => {
+    if (!touch || event.pointerId !== touch.id) return;
+    const dx = event.clientX-touch.x;
+    const dy = event.clientY-touch.y;
+    if (!touch.state) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dy) >= Math.abs(dx) || isBusy()) { touch = null; return; }
+      touch.state = begin(touch.wrap);
+      try { touch.wrap.setPointerCapture(event.pointerId); } catch { /* sense captura */ }
+    }
+    event.preventDefault();
+    move(touch.state,dx);
+  },{passive:false});
+  function release(event) {
+    if (!touch || event.pointerId !== touch.id) return;
+    const state = touch.state;
+    touch = null;
+    if (!state) return;
+    blockClick = Date.now();
+    if (event.type === 'pointercancel') reset(state); else end(state);
+  }
+  document.addEventListener('pointerup',release);
+  document.addEventListener('pointercancel',release);
+  // Després d'arrossegar, no s'obre la fila.
+  document.addEventListener('click',event => {
+    if (Date.now()-blockClick < 400 && event.target.closest('.swipe')) { event.preventDefault(); event.stopImmediatePropagation(); }
+  },true);
+  // Trackpad: lliscar amb dos dits.
+  document.addEventListener('wheel',event => {
+    const wrap = event.target.closest('.swipe');
+    if (!wheel) {
+      if (!wrap || isBusy() || Date.now() < quietUntil || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      wheel = {wrap,state:begin(wrap),dx:0};
+    } else if (wheel.wrap !== wrap && !wheel.wrap.contains(event.target)) return;
+    event.preventDefault();
+    wheel.dx -= event.deltaX;
+    move(wheel.state,wheel.dx);
+    clearTimeout(wheel.timer);
+    wheel.timer = setTimeout(() => { const state = wheel.state; wheel = null; end(state); },120);
+  },{passive:false});
+}
 
 function whatsappPhone(value) {
   const text = String(value || '').trim();
@@ -788,17 +928,24 @@ function mountApp(request, initialData) {
       check('stockLabels',user?.stockLabels,'Imprimir etiquetes')+
       check('stockConfig',user?.stockConfig,'Catàleg d’articles, proveïdors i paràmetres')+'</div>'+
       '</fieldset>'+
-      '<button class="primary">'+(user ? 'Desa' : 'Afegeix l’usuari')+'</button></form>';
+      '<div class="actions"><button class="primary">'+(user ? 'Desa' : 'Afegeix l’usuari')+'</button>'+
+      // Botó Elimina de la fitxa: sense confirmació i amb Desfés (ESTIL.md).
+      (user && !locked ? '<button type="button" class="remove" data-delete-user="'+escape(user.id)+'">Elimina</button>' : '')+'</div></form>';
   }
 
+  // Fila lliscable (ESTIL.md): cap a l'esquerra elimina (va a la Paperera); cap a la dreta desactiva (o torna a activar).
+  // L'administrador principal i un mateix no es poden eliminar ni desactivar.
   function row(user) {
-    return '<details class="worker-profile-item" data-row="'+escape(user.id)+'"'+(openId === user.id ? ' open' : '')+'>'+
-      '<summary><strong>'+escape(user.name)+'</strong><span>'+escape(summaryMeta(user))+'</span></summary>'+form(user)+'</details>';
+    const locked = isPrincipal(user) || (Boolean(user.email) && user.email === data.me.email);
+    return swipeOpen('user:'+user.id,!locked,!locked,user.active ? 'archive' : 'restore')+
+      '<details class="worker-profile-item swipe-row" data-row="'+escape(user.id)+'"'+(openId === user.id ? ' open' : '')+'>'+
+      '<summary><strong>'+escape(user.name)+'</strong><span>'+escape(summaryMeta(user))+'</span></summary>'+form(user)+'</details></div>';
   }
 
   let section = 'users';
   const sections = {
-    users:{label:'Usuaris', render:renderUsers}
+    users:{label:'Usuaris', render:renderUsers},
+    trash:{label:'Paperera', render:renderTrash}
   };
 
   function render() {
@@ -815,6 +962,7 @@ function mountApp(request, initialData) {
     const workers = current.filter(user => !isAdmin(user));
     return '<section class="card worker-profiles main-card"><h2>Usuaris</h2>'+
       '<p class="meta">Aquí decideixes qui pot entrar a cada app i què hi pot fer. Tothom entra amb el seu correu i la seva contrasenya.</p>'+
+      '<p class="meta">Llisca un usuari cap a la dreta per desactivar-lo (o tornar-lo a activar) o cap a l’esquerra per eliminar-lo.</p>'+
       '<details class="worker-profile-item"'+(openId === '' ? ' open' : '')+' data-row=""><summary><strong>Afegeix un usuari</strong></summary>'+form(null)+'</details>'+
       '<h3>Administradors</h3>'+
       (data.ownerEmail && !admins.some(isPrincipal)
@@ -825,14 +973,29 @@ function mountApp(request, initialData) {
       (inactive.length ? '<section class="card worker-profiles"><details class="worker-profile-inactive"'+(inactive.some(user => user.id === openId) ? ' open' : '')+'>'+
         '<summary><strong>Inactius</strong><span>'+inactive.length+'</span></summary>'+inactive.map(row).join('')+'</details></section>' : '')+
       (data.unlinked.length ? '<section class="card"><h2>Accessos a GestoCatalog sense fitxa</h2>'+
-        '<p class="meta">Aquests correus poden entrar a GestoCatalog però no tenen fitxa d’usuari.</p>'+
-        data.unlinked.map(email => '<div class="row item"><span>'+escape(email)+'</span>'+
-          '<button type="button" class="remove" data-revoke="'+escape(email)+'">Retira l’accés</button></div>').join('')+
+        '<p class="meta">Aquests correus poden entrar a GestoCatalog però no tenen fitxa d’usuari. Llisca’n un cap a l’esquerra per retirar-li l’accés.</p>'+
+        data.unlinked.map(email => swipeOpen('access:'+email,true,false)+'<div class="row item swipe-row"><span>'+escape(email)+'</span></div></div>').join('')+
         '</section>' : '');
   }
 
-  async function send(payload, button, success) {
-    if (busy) return;
+  // Paperera: usuaris eliminats i accessos retirats. Cap a la dreta es recupera; cap a l'esquerra s'esborra definitivament.
+  function renderTrash() {
+    const items = data.trash || [];
+    const rows = items.map(item => {
+      const left = Math.max(0,Math.ceil((Date.parse(item.deleted_at)+30*864e5-Date.now())/864e5));
+      const when = left <= 0 ? 's’esborrarà avui' : left === 1 ? 's’esborrarà demà' : 's’esborrarà d’aquí a '+left+' dies';
+      const meta = [item.kind === 'access' ? 'Accés' : 'Usuari',item.detail,
+        'eliminat el '+new Date(item.deleted_at).toLocaleDateString('ca-ES',{dateStyle:'medium',timeZone:'Europe/Madrid'}),when].filter(Boolean).join(' · ');
+      return swipeOpen('trash:'+item.id,true,true,'restore')+'<div class="trash-row swipe-row" title="'+escape(item.name+' · '+meta)+'"><strong>'+escape(item.name)+'</strong>'+
+        '<span class="meta">'+escape(meta)+'</span></div></div>';
+    }).join('');
+    return '<section class="card main-card"><h2>Paperera</h2><p class="meta">Llisca un element cap a la dreta per recuperar-lo o cap a l’esquerra per esborrar-lo definitivament. Passats 30 dies, s’esborren sols.</p>'+
+      '<div class="trash-list">'+(rows || '<p class="meta">La paperera és buida.</p>')+'</div></section>';
+  }
+
+  // Desa i, si va bé, pot oferir «Desfés» (undo rep la resposta del servidor). Retorna si s'ha fet.
+  async function send(payload, button, success, undo) {
+    if (busy) return false;
     busy = true;
     if (button) button.disabled = true;
     notify('Desant…');
@@ -841,10 +1004,12 @@ function mountApp(request, initialData) {
       data = result;
       openId = null;
       render();
-      notify(success);
+      if (undo) showUndo(success,() => undo(result)); else notify(success);
+      return true;
     } catch (error) {
       notify(error.message || 'No s’ha pogut desar.',true);
       if (button?.isConnected) button.disabled = false;
+      return false;
     } finally {
       busy = false;
     }
@@ -871,11 +1036,48 @@ function mountApp(request, initialData) {
       render();
       return;
     }
-    const revoke = event.target.closest('[data-revoke]');
-    if (!revoke) return;
-    if (!confirm('Vols retirar l’accés a GestoCatalog de '+revoke.dataset.revoke+'?')) return;
-    void send({action:'revokeAccess',email:revoke.dataset.revoke},revoke,'Accés retirat.');
+    const remove = event.target.closest('[data-delete-user]');
+    if (remove) void deleteUser(remove.dataset.deleteUser,remove);
   });
+
+  const userName = id => data.users.find(user => user.id === id)?.name || '';
+  function deleteUser(id, button) {
+    const name = userName(id);
+    return send({action:'deleteUser',id},button,'S’ha eliminat «'+name+'».',
+      result => send({action:'restoreTrash',ids:[result.trashId]},null,'S’ha recuperat «'+name+'».'));
+  }
+  function setActive(id, active) {
+    const name = userName(id);
+    return send({action:'setActive',id,active},null,'S’ha '+(active ? 'activat' : 'desactivat')+' «'+name+'».',
+      () => send({action:'setActive',id,active:!active},null,'S’ha desfet el canvi de «'+name+'».'));
+  }
+  // Lliscar: usuaris, accessos sense fitxa i Paperera.
+  setupSwipe(async (key, dir) => {
+    const split = key.indexOf(':');
+    const kind = key.slice(0,split);
+    const id = key.slice(split+1);
+    if (busy) return false;
+    if (kind === 'user') {
+      const user = data.users.find(item => item.id === id);
+      if (!user) return false;
+      return dir === 'left' ? deleteUser(id) : setActive(id,!user.active);
+    }
+    if (kind === 'access') {
+      return send({action:'revokeAccess',email:id},null,'S’ha retirat l’accés de «'+id+'».',
+        result => send({action:'restoreTrash',ids:[result.trashId]},null,'S’ha tornat l’accés a «'+id+'».'));
+    }
+    if (kind === 'trash') {
+      const item = (data.trash || []).find(entry => entry.id === id);
+      if (!item) return false;
+      if (dir === 'right') {
+        return send({action:'restoreTrash',ids:[id]},null,'S’ha recuperat «'+item.name+'».',
+          () => send(item.kind === 'access' ? {action:'revokeAccess',email:item.item_id} : {action:'deleteUser',id:item.item_id},null,'Ha tornat a la Paperera.'));
+      }
+      return send({action:'purgeTrash',ids:[id]},null,'S’ha esborrat definitivament «'+item.name+'».',
+        () => send({action:'unpurgeTrash',ids:[id]},null,'«'+item.name+'» torna a ser a la Paperera.'));
+    }
+    return false;
+  },() => busy);
 
   content.addEventListener('submit',event => {
     event.preventDefault();
