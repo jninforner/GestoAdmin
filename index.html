@@ -315,6 +315,10 @@ details.order-category[open]>summary{border-radius:11px 11px 0 0}
 .swipe.dragging>.catalog-row{box-shadow:0 6px 18px rgba(0,0,0,.18);border-radius:10px;opacity:.95}
 .swipe>.item.swipe-row{padding-bottom:8px}
 
+/* Subcategories a la pantalla Categories: sagnades sota la categoria principal. */
+.catalog-row.subcategory{padding-left:28px}
+.catalog-row.subcategory .article-open strong::before{content:'— ';color:var(--mu)}
+
 .worker-profiles .worker-profile-item{border-top:1px solid var(--border);padding:10px 0}
 .worker-profile-item>summary,.worker-profile-inactive>summary{cursor:pointer;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .worker-profile-item>summary::before,.worker-profile-inactive>summary::before{content:"+"}
