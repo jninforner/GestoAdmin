@@ -200,7 +200,7 @@ dialog.sheet-dialog::backdrop{background:#11183180}
 .invoice-card form{margin-top:10px}
 .purchase-row{border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin:12px 0 0}
 .purchase-row legend{font-weight:650;padding:0 4px}
-.purchase-row.is-discarded{opacity:.6}
+.purchase-row.is-discarded > :not(.purchase-row-actions),.purchase-row.is-discarded .purchase-row-actions > :not([data-discard-row]){opacity:.6}
 .purchase-row .grid{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}
 .purchase-article{grid-column:1/-1;display:grid;gap:4px;font-size:14px;color:var(--mu)}
 .article-pick{font-size:16px;color:var(--tx);display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;font-weight:600}
@@ -209,6 +209,7 @@ dialog.sheet-dialog::backdrop{background:#11183180}
 .pick-results button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%}
 .pick-results button[aria-current]{border-color:var(--ln);border-width:2px}
 .pick-new{font-weight:650}
+.line-article{margin-top:6px;font-size:.9rem;padding:4px 10px}
 .purchase-row-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}
 .purchase-row-actions .meta{flex:1 1 200px;margin:0}
 .match-tag{display:inline-block;font-size:.8em;font-weight:650;border-radius:999px;padding:1px 8px;margin-right:2px}
