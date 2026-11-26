@@ -36,9 +36,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .item:last-child{padding-bottom:0}
 .meta{color:var(--mu);font-size:14px}
 .error,.remove{color:var(--red)}
-#status:empty{display:none}
-#status{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:1000;width:max-content;max-width:min(600px,calc(100% - 24px));margin:0;padding:12px 16px;border-radius:12px;background:var(--surface);color:var(--tx);border:1px solid var(--border);box-shadow:0 8px 28px #11183140;font-weight:600;cursor:pointer}
-#status.error{color:var(--red);border-color:var(--red)}
 .whatsapp{color:var(--green);border-color:var(--green)}
 @media(max-width:430px){main{padding:14px 12px 28px}.card{padding:15px}h1{font-size:24px}nav button{padding:8px 11px}}
 .order-lookup{margin-bottom:12px}
@@ -277,19 +274,7 @@ details.order-category[open]>summary{border-radius:11px 11px 0 0}
 .supplier-choice{display:grid;gap:8px;margin-top:10px}
 .supplier-choice button{width:100%;justify-content:flex-start;min-height:48px}
 /* Lliscar (ESTIL.md): cap a l'esquerra elimina (vermell); cap a la dreta arxiva o recupera (blau) */
-.swipe{position:relative;overflow:hidden;touch-action:pan-y;-webkit-user-select:none;user-select:none}
-.swipe>.swipe-bg{position:absolute;inset:0;display:none;align-items:center;padding:0 18px;color:var(--on)}
-.swipe.left>.swipe-bg{display:flex;justify-content:flex-end;background:var(--red)}
-.swipe.right>.swipe-bg{display:flex;justify-content:flex-start;background:var(--ln)}
-.swipe>.swipe-bg svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.swipe>.swipe-row{position:relative}
-#status .undo-button{min-height:32px;margin-inline-start:10px;padding:4px 12px;font-size:14px}
 /* Paperera */
-.trash-list{margin-top:10px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
-.trash-list>.meta{padding:12px;margin:0}
-.trash-row{display:flex;flex-direction:column;gap:2px;padding:10px 12px;min-height:44px;justify-content:center}
-.swipe+.swipe>.trash-row{border-top:1px solid var(--border)}
-.trash-row strong,.trash-row .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .swipe.dragging{position:relative;z-index:2;overflow:visible}
 .swipe.dragging>.catalog-row{box-shadow:0 6px 18px rgba(0,0,0,.18);border-radius:10px;opacity:.95}
 .swipe>.item.swipe-row{padding-bottom:8px}
@@ -491,7 +476,7 @@ function gestoHeader() {
 }
 
 // Avisos flotants comuns de les apps Gesto (vegeu ESTIL.md → Avisos i errors). Els fan servir GestoTips, GestoAdmin i GestoStock.
-// Funciona sobre l'element #status: els d'èxit marxen sols als 6 segons, els d'error (classe .error) es queden fins que es premen.
+// Funciona sobre l'element #status: els d'èxit marxen sols als 6 segons; els d'error (classe .error) i els importants (classe .keep) es queden fins que es premen.
 // Si hi ha un <dialog> obert, l'avís s'hi mou perquè no quedi tapat. Els camps obligatoris buits avisen aquí, sense la bombolla del navegador.
 function setupNotices() {
   const status = document.querySelector('#status');
@@ -506,9 +491,12 @@ function setupNotices() {
   };
   new MutationObserver(() => {
     clearTimeout(timer);
+    const stays = status.classList.contains('error') || status.classList.contains('keep');
+    const title = status.textContent.trim() && stays ? 'Prem per tancar l’avís' : '';
+    if (status.title !== title) status.title = title;
     if (!status.textContent.trim()) return;
     place();
-    if (!status.classList.contains('error') && status.textContent !== 'Desant…') timer = setTimeout(() => { status.textContent = ''; },6000);
+    if (!stays && status.textContent !== 'Desant…') timer = setTimeout(() => { status.textContent = ''; },6000);
   }).observe(status,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']});
   status.addEventListener('click',event => { if (!event.target.closest('[data-undo]')) status.textContent = ''; });
   document.addEventListener('close',() => {
@@ -535,7 +523,7 @@ function setupNotices() {
 }
 setupNotices();
 
-// Lliscar per eliminar o arxivar i avís amb «Desfés» (ESTIL.md), comú a GestoTips i GestoAdmin.
+// Lliscar per eliminar o arxivar i avís amb «Desfés» (ESTIL.md), comú a GestoCatalog, GestoTips, GestoAdmin i GestoStock.
 // Fila lliscable: swipeOpen(clau, es pot eliminar, es pot arxivar/restaurar, icona de la dreta) + fila amb la classe «swipe-row» + '</div>'.
 // setupSwipe(acció, ocupat): acció(clau, 'left'|'right') retorna (o promet) true si s'ha fet; si no, la fila torna al seu lloc.
 const swipeIcons = {
@@ -547,10 +535,11 @@ function swipeOpen(key, left, right, rightIcon = 'archive') {
   const attr = String(key).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   return '<div class="swipe" data-swipe="'+attr+'"'+(left ? ' data-left="1"' : '')+(right ? ' data-right="1" data-right-icon="'+rightIcon+'"' : '')+'><div class="swipe-bg" aria-hidden="true"></div>';
 }
-// Avís d'èxit amb el botó «Desfés» (dura els 6 segons dels avisos d'èxit).
-function showUndo(message, undo) {
+// Avís amb el botó «Desfés» (dura els 6 segons dels avisos d'èxit; si és d'error, es queda fins que es prem).
+function showUndo(message, undo, error = false) {
   const status = document.querySelector('#status');
-  status.classList.remove('error');
+  status.classList.remove('keep');
+  status.classList.toggle('error',error);
   status.textContent = message;
   if (!undo) return;
   const button = document.createElement('button');
@@ -615,7 +604,8 @@ function setupSwipe(action, isBusy = () => false) {
   document.addEventListener('pointerdown',event => {
     if (event.button > 0) return;
     const wrap = event.target.closest('.swipe');
-    if (!wrap || event.target.closest('input,select,textarea')) return;
+    // Els camps i el que porta data-no-swipe (per exemple, la nansa per ordenar) no fan lliscar la fila.
+    if (!wrap || event.target.closest('input,select,textarea,[data-no-swipe]')) return;
     touch = {wrap,x:event.clientX,y:event.clientY,id:event.pointerId,state:null};
   });
   document.addEventListener('pointermove',event => {
